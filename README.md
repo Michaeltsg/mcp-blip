@@ -35,7 +35,7 @@ You can:
    npm clones, builds (via the `prepare` script) and runs it. This is what the
    `.mcp.json` below uses.
 
-2. **From npm** (smoothest `npx` UX) — once you publish it. Note: the name
+2. **From npm** (recommended — **published**): `npx -y take-blip-mcp`. Note: the name
    `blip-mcp` is already taken on npm, so publish under a free name (this package
    is set up as `take-blip-mcp`) and use `npx -y take-blip-mcp`.
 

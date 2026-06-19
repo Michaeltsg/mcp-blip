@@ -1,0 +1,60 @@
+{
+  "name": "take-blip-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the Take Blip platform (contacts, buckets, broadcast lists, schedules, AI knowledge base) over the Blip HTTP/Command API. stdio transport.",
+  "license": "MIT",
+  "author": "Michaeltsg",
+  "type": "module",
+  "bin": {
+    "blip-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Michaeltsg/mcp-blip.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Michaeltsg/mcp-blip/issues"
+  },
+  "homepage": "https://github.com/Michaeltsg/mcp-blip#readme",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "self-test": "node dist/index.js --self-test",
+    "map-flow": "node scripts/map-flow.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "take-blip",
+    "blip",
+    "chatbot",
+    "msging",
+    "lime"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

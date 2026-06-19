@@ -1,0 +1,28 @@
+# dependencies / build
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+
+# secrets — NEVER commit credentials
+.env
+.env.*
+*.env
+blip.env
+*.pem
+*.key
+secrets*
+# keep the template only
+!.env.example
+
+# generated flow maps (business logic — not for the public repo)
+flow-map.json
+flow-map.md
+
+# generated componentized flow docs (business logic — not for the public repo)
+flows/
+
+# blip-mcp discovered/documented data (per-project, business logic)
+.mcp-blip/

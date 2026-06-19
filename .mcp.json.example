@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "blip": {
+      "command": "npx",
+      "args": ["-y", "github:Michaeltsg/mcp-blip"],
+      "env": {
+        "BLIP_ENV_FILE": "blip.env",
+        "BLIP_ALLOW_WRITES": "false"
+      }
+    }
+  }
+}

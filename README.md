@@ -221,6 +221,7 @@ summary plus OK/FAILED. Your token is never printed.
 |---|---|
 | `blip_list_contacts` | List CRM contacts. Args: `skip`, `take` (1–100), `filter` (OData). |
 | `blip_get_contact` | Get one contact by `identity`. |
+| `blip_find_contact_by_phone` | Find a contact by phone (tries 55/+/local formats). |
 | `blip_get_bucket` | Read a value from key/value storage by `id`. |
 | `blip_list_broadcast_lists` | List broadcast/distribution lists. *(experimental)* |
 | `blip_list_recipients` | List recipients of a broadcast `list`. *(experimental)* |
@@ -375,6 +376,28 @@ A response with `status: "failure"` is converted into a clear error carrying
 Blip's `reason.code` and `reason.description`. Messages `POST` to `/messages`.
 
 ---
+
+## Publishing to npm
+
+A GitHub Action (`.github/workflows/publish.yml`) publishes the package whenever
+you create a GitHub Release. One-time setup:
+
+1. Create an npm account + an **automation** access token (npmjs.com → Access
+   Tokens → Generate New Token → Automation).
+2. Add it as a repo secret named `NPM_TOKEN`:
+   ```bash
+   gh secret set NPM_TOKEN        # paste the token when prompted
+   ```
+   (or GitHub → Settings → Secrets and variables → Actions).
+3. Create a release — the Action runs typecheck + tests, builds, and publishes:
+   ```bash
+   gh release create v0.1.0 --generate-notes
+   ```
+   For later versions, bump first: `npm version patch && git push --follow-tags`,
+   then create the matching release.
+
+The first publish claims the `take-blip-mcp` name. After that, users install with
+`npx -y take-blip-mcp`. (A `ci.yml` workflow runs tests on every push/PR.)
 
 ## Development
 

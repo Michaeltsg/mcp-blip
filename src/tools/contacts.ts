@@ -4,6 +4,7 @@ import {
   attempt,
   buildListQuery,
   jsonResult,
+  phoneCandidates,
   readOnlyNotice,
   type ToolContext,
 } from "./shared.js";
@@ -54,6 +55,53 @@ export function registerContactTools(ctx: ToolContext): void {
         const uri = `/contacts/${encodeURIComponent(args.identity)}`;
         const res = await client.sendCommand({ method: "get", to: CRM, uri });
         return jsonResult(res.resource ?? res);
+      }),
+  );
+
+  server.registerTool(
+    "blip_find_contact_by_phone",
+    {
+      title: "Find a contact by phone number",
+      description:
+        "Find a CRM contact by phone number. Tries common formats automatically " +
+        "(with/without country code 55, with/without +), since Blip stores them " +
+        "inconsistently. Read-only. Use `flow` to pick which bot's CRM to search.",
+      inputSchema: {
+        phone: z
+          .string()
+          .min(6)
+          .describe("Phone in any common format, e.g. 11997053906 or +5511997053906."),
+        flow: z
+          .string()
+          .optional()
+          .describe("Configured flow (bot) whose CRM to search. Defaults to the default flow."),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async (args) =>
+      attempt(ctx, async () => {
+        const flowClient = ctx.getClient(args.flow);
+        const tried: string[] = [];
+        for (const candidate of phoneCandidates(args.phone)) {
+          tried.push(candidate);
+          const filter = `phoneNumber eq '${candidate}'`;
+          const uri = `/contacts?$take=5&$filter=${encodeURIComponent(filter)}`;
+          const res = await flowClient.sendCommand({ method: "get", to: CRM, uri });
+          const resource = res.resource as { items?: unknown[]; total?: number } | undefined;
+          const items = resource?.items ?? [];
+          if (items.length > 0) {
+            return jsonResult({
+              found: true,
+              matchedFormat: candidate,
+              total: resource?.total ?? items.length,
+              contacts: items,
+            });
+          }
+        }
+        return jsonResult({
+          found: false,
+          message: `No contact found. Tried phoneNumber formats: ${tried.join(", ")}`,
+        });
       }),
   );
 

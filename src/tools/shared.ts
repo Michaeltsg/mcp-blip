@@ -90,3 +90,18 @@ export function buildListQuery(skip: number, take: number, filter?: string): str
 export function encodeBucketId(id: string): string {
   return encodeURIComponent(id).replace(/%3A/gi, ":");
 }
+
+/**
+ * Generate likely phoneNumber formats to search a Blip CRM, which stores them
+ * inconsistently (+55…, 55…, or local DDD+number). Ordered most-likely-first.
+ */
+export function phoneCandidates(phone: string): string[] {
+  const digits = phone.replace(/\D/g, "");
+  const list: string[] = [];
+  if (digits.startsWith("55")) {
+    list.push(`+${digits}`, digits, digits.slice(2), `+${digits.slice(2)}`);
+  } else {
+    list.push(digits, `+55${digits}`, `55${digits}`, `+${digits}`);
+  }
+  return [...new Set(list)].filter((v) => v.replace(/\D/g, "").length >= 8);
+}

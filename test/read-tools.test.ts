@@ -3,7 +3,7 @@ import { BlipClient } from "../src/blip-client.js";
 import { registerAllTools, type ToolContext } from "../src/tools/index.js";
 import { configSecrets, type BlipConfig } from "../src/config.js";
 import { silentLogger } from "../src/logger.js";
-import type { ToolResult } from "../src/tools/shared.js";
+import { phoneCandidates, type ToolResult } from "../src/tools/shared.js";
 
 type Handler = (args: Record<string, unknown>, extra: unknown) => Promise<ToolResult>;
 
@@ -98,5 +98,32 @@ describe("journey-debugging read tools", () => {
     const { handlers, lastUri } = setup();
     await call(handlers, "blip_get_flow", { key: "blip_portal:builder_published_flow" });
     expect(lastUri()).toBe("/buckets/blip_portal:builder_published_flow");
+  });
+});
+
+describe("phone search", () => {
+  it("phoneCandidates generates formats with/without country code", () => {
+    expect(phoneCandidates("11997053906")).toEqual([
+      "11997053906",
+      "+5511997053906",
+      "5511997053906",
+      "+11997053906",
+    ]);
+    expect(phoneCandidates("+55 11 99705-3906")[0]).toBe("+5511997053906");
+  });
+
+  it("blip_find_contact_by_phone tries formats until one matches", async () => {
+    const { handlers, fetchImpl } = setup();
+    fetchImpl.mockReset();
+    const body = (resource: unknown) =>
+      new Response(JSON.stringify({ status: "success", resource }), { status: 200 });
+    fetchImpl
+      .mockResolvedValueOnce(body({ total: 0, items: [] }))
+      .mockResolvedValueOnce(body({ total: 1, items: [{ identity: "x", phoneNumber: "5511997053906" }] }));
+    const res = await call(handlers, "blip_find_contact_by_phone", { phone: "11997053906" });
+    const out = JSON.parse(res.content[0]!.text);
+    expect(out.found).toBe(true);
+    expect(out.matchedFormat).toBe("+5511997053906");
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 });
